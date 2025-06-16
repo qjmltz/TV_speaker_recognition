@@ -86,14 +86,6 @@ class VoiceClassifier:
         return {k: np.mean(v, axis=0) for k, v in actor_embeds.items()}
 
     def classify(self, all_clusters: List[List[Dict]]) -> List[Dict]:
-        """
-        对输入的音频片段列表进行分类，返回带分类结果的列表
-        segments示例格式：
-        [
-            {'index': 1, 'start': 0.0, 'end': 2.0, 'text': 'hello', 'audio_path': 'path/to/file.wav'},
-            ...
-        ]
-        """
         results = []
 
         for group_idx, group_clusters in enumerate(all_clusters, 1):
@@ -105,22 +97,28 @@ class VoiceClassifier:
                 for seg in cluster:
                     waveform = self._load_audio(seg['audio_path'])
                     total_len = waveform.shape[1]
+                    seen_actors = set(seg.get('seen_actors', []))  # ✅ 安全获取
 
                     # 短片段作为一票
                     if total_len < 16000:
                         emb = self._extract_embedding(waveform)
-                        sims = {actor: cosine_similarity(emb.reshape(1, -1), ref.reshape(1, -1))[0][0]
-                                for actor, ref in self.actor_avg_embeds.items()}
+                        sims = {
+                            actor: cosine_similarity(emb.reshape(1, -1), ref.reshape(1, -1))[0][0] * (
+                                1.5 if actor in seen_actors else 1.0)
+                            for actor, ref in self.actor_avg_embeds.items()
+                        }
                         best_actor = max(sims, key=sims.get)
                         vote_counter[best_actor] += 1
                         sim_sum[best_actor] += sims[best_actor]
                         sim_count[best_actor] += 1
                     else:
-                        # 滑动窗口投票
                         embeddings = self._extract_embeddings_sliding(waveform)
                         for emb in embeddings:
-                            sims = {actor: cosine_similarity(emb.reshape(1, -1), ref.reshape(1, -1))[0][0]
-                                    for actor, ref in self.actor_avg_embeds.items()}
+                            sims = {
+                                actor: cosine_similarity(emb.reshape(1, -1), ref.reshape(1, -1))[0][0] * (
+                                    1.5 if actor in seen_actors else 1.0)
+                                for actor, ref in self.actor_avg_embeds.items()
+                            }
                             best_actor = max(sims, key=sims.get)
                             vote_counter[best_actor] += 1
                             sim_sum[best_actor] += sims[best_actor]
@@ -138,7 +136,7 @@ class VoiceClassifier:
                     'actor': final_actor,
                     'vote_ratio': vote_ratio,
                     'similarity': final_sim,
-                    'segments': cluster  # ✅ 加入原始片段的完整信息
+                    'segments': cluster
                 })
 
                 print(f"[CLUSTER] Group {group_idx} Class {cluster_idx} -> {final_actor} "

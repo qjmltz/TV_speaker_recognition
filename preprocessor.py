@@ -6,11 +6,14 @@ from typing import List, Dict
 from moviepy.editor import VideoFileClip
 from pydub import AudioSegment
 
+from modelscope.pipelines import pipeline
+from modelscope.utils.constant import Tasks
 
 def extract_wav_from_mp4(mp4_path, wav_path, sample_rate=16000):
     video = VideoFileClip(mp4_path)
     audio = video.audio
     audio.write_audiofile(wav_path, fps=sample_rate, codec='pcm_s16le')
+    voice_enhancer(wav_path, wav_path)  # 调用音频增强函数
 
 
 def srt_time_to_seconds(tstr):
@@ -62,6 +65,14 @@ def group_dialogues_by_interval(dialogues: List[Dict], max_gap: float = 10.0) ->
         groups.append(current_group)
     return groups
 
+def voice_enhancer(audio_path = '', output_path=''):
+    ans = pipeline(
+        Tasks.acoustic_noise_suppression,
+        model='iic/speech_zipenhancer_ans_multiloss_16k_base')
+    result = ans(
+        audio_path,
+    output_path=output_path)
+    print("done")
 
 def extract_segments_from_video(mp4_path: str, srt_path: str) -> List[Dict]:
     """
