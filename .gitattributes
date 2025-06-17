@@ -3,3 +3,5 @@
 ocr_subtitle/backend/subfinder/*.dll filter=lfs diff=lfs merge=lfs -text
 ocr_subtitle/backend/models/* filter=lfs diff=lfs merge=lfs -text
 ocr_subtitle/backend/subfinder/* filter=lfs diff=lfs merge=lfs -text
+ocr_subtitle/backend/subfinder/linux/VideoSubFinderCli filter=lfs diff=lfs merge=lfs -text
+ocr_subtitle/backend/subfinder/linux/* filter=lfs diff=lfs merge=lfs -text
