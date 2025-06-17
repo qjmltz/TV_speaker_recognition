@@ -1,5 +1,3 @@
-#!/bin/sh
-cd ${0%/*}
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD:/lib64
-chmod +x ./VideoSubFinderCli
-./VideoSubFinderCli "$@"
+version https://git-lfs.github.com/spec/v1
+oid sha256:8cdf0b14cd446ac3e57bd1eba746a4c12befbdb741120120dc1aa740dd148d63
+size 127
