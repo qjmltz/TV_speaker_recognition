@@ -1,13 +1,16 @@
-import os
 import re
-import tempfile
+import os
 from pathlib import Path
 from typing import List, Dict
-from moviepy.editor import VideoFileClip
+from moviepy.video.io.VideoFileClip import VideoFileClip
 from pydub import AudioSegment
 
 from modelscope.pipelines import pipeline
 from modelscope.utils.constant import Tasks
+
+from ocr_subtitle.backend.main import ocr_subtitle_main
+
+
 
 def extract_wav_from_mp4(mp4_path, wav_path, sample_rate=16000):
     video = VideoFileClip(mp4_path)
@@ -65,14 +68,23 @@ def group_dialogues_by_interval(dialogues: List[Dict], max_gap: float = 10.0) ->
         groups.append(current_group)
     return groups
 
-def voice_enhancer(audio_path = '', output_path=''):
-    ans = pipeline(
-        Tasks.acoustic_noise_suppression,
-        model='iic/speech_zipenhancer_ans_multiloss_16k_base')
-    result = ans(
-        audio_path,
-    output_path=output_path)
-    print("done")
+
+
+def timestamp_to_date(timestamp: int) -> str:
+    """
+    将时间戳转换为具体的年月日格式。
+
+    Args:
+        timestamp (int): 时间戳（单位为秒）。
+
+    Returns:
+        str: 格式化的日期字符串，例如 "2025-06-16"。
+    """
+    from datetime import datetime
+    date = datetime.fromtimestamp(timestamp)
+    return date.strftime("%Y-%m-%d")
+
+
 
 def extract_segments_from_video(mp4_path: str, srt_path: str) -> List[Dict]:
     """
@@ -105,10 +117,7 @@ def extract_segments_from_video(mp4_path: str, srt_path: str) -> List[Dict]:
         for dlg in group:
             segment = audio[dlg['start'] * 1000 : dlg['end'] * 1000]
             out_path = query_dir / f"line_{index:04d}.wav"
-
-
             segment.export(str(out_path), format='wav')
-
             segments.append({
                 'index': index,
                 'group': group_id,
@@ -122,3 +131,30 @@ def extract_segments_from_video(mp4_path: str, srt_path: str) -> List[Dict]:
     os.remove(str(wav_path))
     print(f"[INFO] 完成预处理，共切割 {len(segments)} 段，对话分组数量：{len(dialogue_groups)}。")
     return segments
+
+def voice_enhancer(audio_path = '', output_path=''):
+    ans = pipeline(
+        Tasks.acoustic_noise_suppression,
+        model='iic/speech_zipenhancer_ans_multiloss_16k_base')
+    result = ans(
+        audio_path,
+    output_path=output_path)
+    print("done")
+
+
+if __name__ == "__main__":
+    wav_test = 'line_0565.wav'
+    output_test = 'line_0565_enhanced.wav'
+    # voice_enhancer(audio_path=wav_test, output_path=output_test)
+    mp4_path = "/home/z004h8mu/project_X/Project-X/ocr_subtitle/Epsode01.mp4"
+    srt_path = "S01E01.srt"
+    # extract_segments_from_video(mp4_path= mp4_path, srt_path=srt_path)
+
+    
+    # 测试时间戳
+    # timestamp = 1749554350 # 示例时间戳
+    # formatted_date = timestamp_to_date(timestamp)
+    # print(formatted_date) 
+    # 
+    # 测试OCR字幕处理
+    ocr_subtitle_main(video_path=mp4_path) 
