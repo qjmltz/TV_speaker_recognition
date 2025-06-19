@@ -25,17 +25,31 @@ def seconds_to_srt_time(seconds: float) -> str:
 
 # 写入带角色标注的 SRT 字幕
 def save_labeled_srt(results, output_path: str, actor_map: dict):
+    # 1. 整理所有带 actor 的片段
+    all_segs = []
+    for res in results:
+        actor = res['actor']
+        seg_ids = res.get('segment_ids', [])  # 原始字幕编号
+        for i, seg in enumerate(res['segments']):
+            seg = seg.copy()
+            seg['actor'] = actor
+            seg['segment_id'] = seg_ids[i] if i < len(seg_ids) else -1  # 防止越界
+            all_segs.append(seg)
+
+    # 2. 按 segment_id 升序排序
+    all_segs.sort(key=lambda x: x.get('segment_id', -1))
+
+    # 3. 写入到 SRT 文件
     with open(output_path, 'w', encoding='utf-8') as f:
-        index = 1
-        for res in results:
-            actor_name = actor_map.get(res['actor'], res['actor'])
-            for seg in res['segments']:
-                start_str = seconds_to_srt_time(seg['start'])
-                end_str = seconds_to_srt_time(seg['end'])
-                text = seg.get('text', '')  # 防止缺字段报错
-                f.write(f"{index}\n{start_str} --> {end_str}\n{actor_name}: {text}\n\n")
-                index += 1
+        for idx, seg in enumerate(all_segs, 1):
+            start_str = seconds_to_srt_time(seg['start'])
+            end_str = seconds_to_srt_time(seg['end'])
+            actor_name = actor_map.get(seg['actor'], seg['actor'])
+            text = seg.get('text', '')
+            f.write(f"{idx}\n{start_str} --> {end_str}\n{actor_name}: {text}\n\n")
+
     print(f"[INFO] 已保存带标注字幕至：{output_path}")
+
 
 def main():
     mp4_path = "S01E02.mp4"
