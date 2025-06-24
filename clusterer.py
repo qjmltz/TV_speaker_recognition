@@ -8,6 +8,9 @@ from pydub import AudioSegment
 from hubconf import ReDimNet
 import tempfile
 
+# 选择设备
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+print(f"[INFO] Using device: {device}")
 
 def load_audio(filepath, target_sr=16000):
     try:
@@ -25,15 +28,13 @@ def load_audio(filepath, target_sr=16000):
         waveform = waveform.mean(dim=0, keepdim=True)
     return waveform
 
-
 def extract_embedding(model, waveform):
     with torch.no_grad():
         if waveform.shape[1] < 16000:
             waveform = torch.nn.functional.pad(waveform, (0, 16000 - waveform.shape[1]))
-        waveform = waveform[:, :16000].unsqueeze(0)
+        waveform = waveform[:, :16000].unsqueeze(0).to(device)  # ✅ 输入送入设备
         emb = model(waveform)
-        return emb.squeeze().cpu().numpy()
-
+        return emb.squeeze().cpu().numpy()  # ✅ 转回 CPU 后转 numpy
 
 def group_by_gap(segments: List[Dict], max_gap=10.0) -> List[List[Dict]]:
     segments = sorted(segments, key=lambda x: x['start'])
@@ -44,7 +45,6 @@ def group_by_gap(segments: List[Dict], max_gap=10.0) -> List[List[Dict]]:
         else:
             groups.append([seg])
     return groups
-
 
 def cluster_within_group(group: List[Dict]) -> List[List[Dict]]:
     clusters = []
@@ -64,18 +64,18 @@ def cluster_within_group(group: List[Dict]) -> List[List[Dict]]:
             clusters.append([seg])
     return clusters
 
-
 def compute_clusters(segments: List[Dict], model=None, max_gap=10.0) -> List[List[List[Dict]]]:
     print("[INFO] 初始化模型...")
     if model is None:
         model = ReDimNet(model_name='b6', train_type='ptn', dataset='vox2')
+        model.to(device)  # ✅ 模型迁移到设备
         model.eval()
 
     print("[INFO] 提取嵌入...")
     for i, seg in enumerate(segments):
         waveform = load_audio(seg['audio_path'])
         seg['embedding'] = extract_embedding(model, waveform)
-        seg['index'] = seg.get('index', i)  # 保底设置 index
+        seg['index'] = seg.get('index', i)
 
     print("[INFO] 分组并聚类...")
     groups = group_by_gap(segments, max_gap=max_gap)
@@ -83,7 +83,7 @@ def compute_clusters(segments: List[Dict], model=None, max_gap=10.0) -> List[Lis
 
     for group_id, group in enumerate(groups):
         for seg in group:
-            seg['group'] = group_id  # ✅ 给每个片段打上分组编号
+            seg['group'] = group_id
         clusters = cluster_within_group(group)
         all_clusters.append(clusters)
 

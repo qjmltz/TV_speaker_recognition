@@ -1,6 +1,5 @@
 import os
 import yaml
-from pathlib import Path
 from datetime import timedelta
 
 from preprocessor import extract_segments_from_video
@@ -52,10 +51,10 @@ def save_labeled_srt(results, output_path: str, actor_map: dict):
 
 
 def main():
-    mp4_path = "S01E02.mp4"
-    srt_path = "S01E02.srt"
+    mp4_path = "S01E03.mp4"
+    srt_path = "S01E03.srt"
     yaml_path = "actor.yaml"
-    output_srt_path = "S01E02_labeled.srt"
+    output_srt_path = "S01E03_clusterer.srt"
 
     assert os.path.exists(mp4_path), f"找不到视频文件 {mp4_path}"
     assert os.path.exists(srt_path), f"找不到字幕文件 {srt_path}"

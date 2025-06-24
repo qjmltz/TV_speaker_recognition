@@ -5,15 +5,20 @@ from pathlib import Path
 from typing import List, Dict
 from moviepy.editor import VideoFileClip
 from pydub import AudioSegment
+#
+# from modelscope.pipelines import pipeline
+# from modelscope.utils.constant import Tasks
 
-from modelscope.pipelines import pipeline
-from modelscope.utils.constant import Tasks
+# ans = pipeline(
+#         Tasks.acoustic_noise_suppression,
+#         model='iic/speech_zipenhancer_ans_multiloss_16k_base')
 
 def extract_wav_from_mp4(mp4_path, wav_path, sample_rate=16000):
     video = VideoFileClip(mp4_path)
     audio = video.audio
     audio.write_audiofile(wav_path, fps=sample_rate, codec='pcm_s16le')
-    voice_enhancer(wav_path, wav_path)  # 调用音频增强函数
+    # voice_enhancer(wav_path, wav_path)
+
 
 
 def srt_time_to_seconds(tstr):
@@ -65,14 +70,12 @@ def group_dialogues_by_interval(dialogues: List[Dict], max_gap: float = 10.0) ->
         groups.append(current_group)
     return groups
 
-def voice_enhancer(audio_path = '', output_path=''):
-    ans = pipeline(
-        Tasks.acoustic_noise_suppression,
-        model='iic/speech_zipenhancer_ans_multiloss_16k_base')
-    result = ans(
-        audio_path,
-    output_path=output_path)
-    print("done")
+# def voice_enhancer(audio_path = '', output_path=''):
+#
+#     result = ans(
+#         audio_path,
+#     output_path=output_path)
+#     print("done")
 
 def extract_segments_from_video(mp4_path: str, srt_path: str) -> List[Dict]:
     """
@@ -101,6 +104,7 @@ def extract_segments_from_video(mp4_path: str, srt_path: str) -> List[Dict]:
     index = 1
 
     print(f"[INFO] 切割音频，共分为 {len(dialogue_groups)} 组...")
+
     for group_id, group in enumerate(dialogue_groups, 1):
         for dlg in group:
             segment = audio[dlg['start'] * 1000 : dlg['end'] * 1000]
@@ -108,6 +112,7 @@ def extract_segments_from_video(mp4_path: str, srt_path: str) -> List[Dict]:
 
 
             segment.export(str(out_path), format='wav')
+            # voice_enhancer(str(out_path), str(out_path))
 
             segments.append({
                 'index': index,
@@ -122,3 +127,12 @@ def extract_segments_from_video(mp4_path: str, srt_path: str) -> List[Dict]:
     os.remove(str(wav_path))
     print(f"[INFO] 完成预处理，共切割 {len(segments)} 段，对话分组数量：{len(dialogue_groups)}。")
     return segments
+
+
+
+
+
+
+
+
+
