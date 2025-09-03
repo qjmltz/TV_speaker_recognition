@@ -1,8 +1,8 @@
 # TV_speaker_recognition
-# 电视剧说话人识别竞赛
+#  “声”临其境：多模态驱动的智能台词标注系统
 
 <div align="center">
-  <img src="./images/image1.png" alt="模型总览" width="1200">
+  <img src="./images/image1.png" alt="模型总览" width="800">
   <br>
   <small>基于深度学习的电视剧角色语音识别系统</small>
 </div>
@@ -41,14 +41,18 @@ python  /root/main.py
 ### 🗂 项目结构
 ```bash
 project/
-├── configs/          # 配置文件
-├── data/             # 数据目录
-├── models/           # 模型定义
-├── utils/            # 工具函数
-├── scripts/          # 训练和评估脚本
-├── images/           # 图片资源
+├── dataset/          # 参考库
+├── face_alignment/   # 人脸识别
+├── images/           # 模型框架图
+├── redimnet/         # 声纹识别
+├── actor.yaml        # 演员设置
+├── actorfaces.py     # CSGDC
+├── clusterer.py      # Speech Clustering
+├── classifier.py     # RSR-SWV
+├── preprocessor.py   # 预处理
+├── hubconf.py        # 演员设置
 ├── requirements.txt  # 依赖列表
-└── README.md         # 项目说明
+└── main.py           # 主程序
 ```
 ### 👥 贡献者
 - [Merhan Lee](https://github.com/qjmltz)
