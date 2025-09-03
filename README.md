@@ -30,12 +30,12 @@ Addressing the pain points of traditional subtitle production, such as manual-de
 
 ```bash
 pip install -r requirements.txt
-
+```
 
 ### 训练模型
 ```bash
 python  /root/main.py
-
+```
 
 
 ### 🗂 项目结构
