@@ -2,7 +2,7 @@
 # 电视剧说话人识别竞赛
 
 <div align="center">
-  <img src="./images/image1.png" alt="模型总览" width="200">
+  <img src="./images/image1.png" alt="模型总览" width="1200">
   <br>
   <small>基于深度学习的电视剧角色语音识别系统</small>
 </div>
@@ -39,7 +39,7 @@ python  /root/main.py
 
 
 ### 🗂 项目结构
-text
+```bash
 project/
 ├── configs/          # 配置文件
 ├── data/             # 数据目录
@@ -49,7 +49,7 @@ project/
 ├── images/           # 图片资源
 ├── requirements.txt  # 依赖列表
 └── README.md         # 项目说明
-
+```
 ### 👥 贡献者
 - [Merhan Lee](https://github.com/qjmltz)
 - [Ruixi Ran](https://github.com/MagiaClay)
