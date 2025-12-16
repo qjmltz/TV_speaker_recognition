@@ -9,7 +9,7 @@
 
 ## 📖 项目概述
 
-第七届中国研究生人工智能创新大赛参赛作品
+第七届中国研究生人工智能创新大赛华为专项一等奖作品
 “声”临其境：多模态驱动的智能台词标注系统 
 针对传统字幕制作中台词对齐依赖人工、误差率高的痛点，我们提出了一种多模态驱动的智能台词标注系统。系统融合语音识别、说话人聚类、人脸追踪，实现了音视频信息的深度互补。技术上，我们设计了前后文场景驱动的对话分组与约束聚类机制，解决了短音频切分不准和多人重叠语音的鲁棒性问题；引入滑动窗口+投票机制，显著降低了噪声干扰导致的识别偏差；并结合大语言模型的上下文因果校正，提升了台词与角色匹配的语义一致性。实验表明，在国产电视剧《开端》数据集中，说话人准确率达到81.52%，结合各模块作用展开消融实验，均显著优于现有单模态方案。该方法具备良好的通用性与可扩展性，为影视后期、短视频生成等应用提供了高效、智能的解决方案。 
 
@@ -32,9 +32,9 @@ Addressing the pain points of traditional subtitle production, such as manual-de
 pip install -r requirements.txt
 ```
 
-### 训练模型
+### 运行模型
 ```bash
-python  /root/main.py
+python  /TV_speaker_recognition/main.py
 ```
 
 
@@ -57,13 +57,12 @@ project/
 ### 👥 贡献者
 - [Merhan Lee](https://github.com/qjmltz)
 - [Ruixi Ran](https://github.com/MagiaClay)
+- [Xiaohan Guo](https://github.com/guesg)
 
 
 
 ### 🙏 致谢
-感谢 [redimnet](https://github.com/redimnet) 和 [adaface](https://github.com/adaface) 提供的宝贵资源和代码参考！
+感谢 [redimnet](https://github.com/IDRnD/redimnet) 和 [adaface](https://github.com/mk-minchul/AdaFace) 提供的宝贵资源和代码参考！
 
 感谢第七届中国研究生人工智能创新大赛以及华为企业提供平台！
-
-
 
