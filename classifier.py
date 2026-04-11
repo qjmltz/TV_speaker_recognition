@@ -128,5 +128,75 @@ class VoiceClassifier:
 
                 print(f"[CLUSTER] Group {group_idx} Class {cluster_idx} -> {final_actor} "
                       f"(vote: {vote_ratio:.2%}, sim: {final_sim:.4f})")
+        flat_results = flatten_results(results)
+        return flat_results
 
-        return results
+def flatten_results(results):
+    flat_results = []
+
+    for res in results:
+        group_id = res.get("group")
+        class_id = res.get("class")
+        actor = res.get("actor")
+        vote_ratio = res.get("vote_ratio")
+        similarity = res.get("similarity")
+
+        segments = res.get("segments", [])
+        seg_ids = res.get("segment_ids", [])
+
+        for i, seg in enumerate(segments):
+            flat_item = {
+                "group": group_id,
+                "class": class_id,
+
+                "segment_id": seg_ids[i] if i < len(seg_ids) else seg.get("index", -1),
+
+                "actor": actor,
+                "vote_ratio": vote_ratio,
+                "similarity": similarity,
+
+                # 👉 从 segment 提出来
+                "start": seg.get("start"),
+                "end": seg.get("end"),
+                "text": seg.get("text"),
+                "audio_path": seg.get("audio_path"),
+
+                "index": seg.get("index"),
+                "seg_group": seg.get("group"),  # ⚠️ 避免覆盖
+
+                "seen_actors": seg.get("seen_actors", {})
+            }
+
+            flat_results.append(flat_item)
+
+    return flat_results
+"""
+   results = [
+        {
+            "group": int,  # 第几个时间段（按时间分组）
+            "class": int,  # 该group内的第几个聚类
+            "segment_ids": [int, ...],  # 原始字幕编号（index）
+
+            "actor": str,  # 最终分类结果（语音+人脸投票）
+            "vote_ratio": float,  # 投票占比
+            "similarity": float,  # 平均相似度
+
+            "segments": [  # ⭐ 最核心内容
+                {
+                    "start": float,  # 开始时间（秒）
+                    "end": float,  # 结束时间（秒）
+                    "text": str,  # 字幕文本
+                    "audio_path": str,  # 音频路径
+
+                    "index": int,  # 原始字幕编号
+                    "group": int,  # 所属group
+
+                    "embedding": np.ndarray,  # ⚠️ 音频embedding（json会炸）
+                    "seen_actors": dict  # 人脸识别结果
+                },
+                ...
+            ]
+        },
+        ...
+    ]
+"""
